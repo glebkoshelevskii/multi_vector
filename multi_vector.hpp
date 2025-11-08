@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <iterator>
 #include <new>
 #include <optional>
 #include <stdexcept>
@@ -109,7 +110,7 @@ public:
     }
 
     template <std::size_t idx>
-    auto data() const -> type_at<idx>* {
+    type_at<idx>* data() const {
         static_assert(idx < N, "Index out of bounds");
         return static_cast<type_at<idx>*>(data_ptrs_[idx]);
     }
@@ -144,6 +145,150 @@ public:
         }
         ::new (static_cast<void*>(data<idx>() + size<idx>())) type_at<idx>(value);
         sizes_[idx]++;
+    }
+
+    template <typename T>
+    T* begin() {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return data<T>();
+    }
+
+    template <typename T>
+    T* end() {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return data<T>() + size<T>();
+    }
+
+    template <typename T>
+    const T* begin() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return data<T>();
+    }
+
+    template <typename T>
+    const T* end() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return data<T>() + size<T>();
+    }
+
+    template <typename T>
+    const T* cbegin() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return begin<T>();
+    }
+
+    template <typename T>
+    const T* cend() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return end<T>();
+    }
+
+    template <typename T>
+    std::reverse_iterator<T*> rbegin() {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return std::reverse_iterator<T*>(end<T>());
+    }
+
+    template <typename T>
+    std::reverse_iterator<T*> rend() {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return std::reverse_iterator<T*>(begin<T>());
+    }
+
+    template <typename T>
+    std::reverse_iterator<const T*> rbegin() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return std::reverse_iterator<const T*>(end<T>());
+    }
+
+    template <typename T>
+    std::reverse_iterator<const T*> rend() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return std::reverse_iterator<const T*>(begin<T>());
+    }
+
+    template <typename T>
+    std::reverse_iterator<const T*> crbegin() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return rbegin<T>();
+    }
+
+    template <typename T>
+    std::reverse_iterator<const T*> crend() const {
+        static_assert((std::is_same_v<T, Ts> || ...), "T must be in multi_vector");
+        return rend<T>();
+    }
+
+    template <std::size_t idx>
+    type_at<idx>* begin() {
+        static_assert(idx < N, "Index out of bounds");
+        return data<idx>();
+    }
+
+    template <std::size_t idx>
+    type_at<idx>* end() {
+        static_assert(idx < N, "Index out of bounds");
+        return data<idx>() + size<idx>();
+    }
+
+    template <std::size_t idx>
+    const type_at<idx>* begin() const {
+        static_assert(idx < N, "Index out of bounds");
+        return data<idx>();
+    }
+
+    template <std::size_t idx>
+    const type_at<idx>* end() const {
+        static_assert(idx < N, "Index out of bounds");
+        return data<idx>() + size<idx>();
+    }
+
+    template <std::size_t idx>
+    const type_at<idx>* cbegin() const {
+        static_assert(idx < N, "Index out of bounds");
+        return begin<idx>();
+    }
+
+    template <std::size_t idx>
+    const type_at<idx>* cend() const {
+        static_assert(idx < N, "Index out of bounds");
+        return end<idx>();
+    }
+
+    template <std::size_t idx>
+    std::reverse_iterator<type_at<idx>*> rbegin() {
+        static_assert(idx < N, "Index out of bounds");
+        return std::reverse_iterator<type_at<idx>*>(end<idx>());
+    }
+
+    template <std::size_t idx>
+    std::reverse_iterator<type_at<idx>*> rend() {
+        static_assert(idx < N, "Index out of bounds");
+        return std::reverse_iterator<type_at<idx>*>(begin<idx>());
+    }
+
+    template <std::size_t idx>
+    std::reverse_iterator<const type_at<idx>*> rbegin() const {
+        static_assert(idx < N, "Index out of bounds");
+        return std::reverse_iterator<const type_at<idx>*>(end<idx>());
+    }
+
+    template <std::size_t idx>
+    std::reverse_iterator<const type_at<idx>*> rend() const {
+        static_assert(idx < N, "Index out of bounds");
+        return std::reverse_iterator<const type_at<idx>*>(begin<idx>());
+    }
+
+    template <std::size_t idx>
+    std::reverse_iterator<const type_at<idx>*> crbegin() const {
+        static_assert(idx < N, "Index out of bounds");
+        return rbegin<idx>();
+    }
+
+    template <std::size_t idx>
+    std::reverse_iterator<const type_at<idx>*> crend() const {
+        static_assert(idx < N, "Index out of bounds");
+        return rend<idx>();
     }
 
     struct builder {

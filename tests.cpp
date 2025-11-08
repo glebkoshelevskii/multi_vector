@@ -334,3 +334,122 @@ TEST(MultiVector, ProperDestructionOnMove) {
     EXPECT_EQ(Tracked::ctor_count, 4);
     EXPECT_EQ(Tracked::dtor_count, 4);
 }
+
+TEST(MultiVector, Iterators) {
+    MV vec = MV::builder()
+        .capacity<int>(3)
+        .capacity<double>(2)
+        .capacity<std::string>(4)
+        .build();
+
+    vec.push_back<int>(10);
+    vec.push_back<int>(20);
+    vec.push_back<double>(3.5);
+    vec.push_back<std::string>("hello");
+    vec.push_back<std::string>("world");
+
+    // Test type-based iterators
+    {
+        // int iterators
+        auto ib = vec.begin<int>();
+        auto ie = vec.end<int>();
+        EXPECT_EQ(ib, vec.data<int>());
+        EXPECT_EQ(ie - ib, 2);
+        EXPECT_EQ(*ib, 10);
+        EXPECT_EQ(*(ib + 1), 20);
+
+        auto cib = vec.cbegin<int>();
+        auto cie = vec.cend<int>();
+        EXPECT_EQ(cib, vec.data<int>());
+        EXPECT_EQ(cie - cib, 2);
+
+        // reverse int iterators
+        auto rib = vec.rbegin<int>();
+        auto rie = vec.rend<int>();
+        EXPECT_EQ(*rib, 20);
+        EXPECT_EQ(*(rib + 1), 10);
+
+        auto crib = vec.crbegin<int>();
+        auto crie = vec.crend<int>();
+        EXPECT_EQ(*crib, 20);
+    }
+
+    {
+        // double iterators
+        auto db = vec.begin<double>();
+        auto de = vec.end<double>();
+        EXPECT_EQ(db, vec.data<double>());
+        EXPECT_EQ(de - db, 1);
+        EXPECT_DOUBLE_EQ(*db, 3.5);
+
+        auto cdb = vec.cbegin<double>();
+        auto cde = vec.cend<double>();
+        EXPECT_EQ(cdb, vec.data<double>());
+        EXPECT_EQ(cde - cdb, 1);
+
+        // reverse double iterators
+        auto rdb = vec.rbegin<double>();
+        auto rde = vec.rend<double>();
+        EXPECT_DOUBLE_EQ(*rdb, 3.5);
+    }
+
+    {
+        // string iterators
+        auto sb = vec.begin<std::string>();
+        auto se = vec.end<std::string>();
+        EXPECT_EQ(sb, vec.data<std::string>());
+        EXPECT_EQ(se - sb, 2);
+        EXPECT_EQ(*sb, "hello");
+        EXPECT_EQ(*(sb + 1), "world");
+
+        auto csb = vec.cbegin<std::string>();
+        auto cse = vec.cend<std::string>();
+        EXPECT_EQ(csb, vec.data<std::string>());
+        EXPECT_EQ(cse - csb, 2);
+
+        // reverse string iterators
+        auto rsb = vec.rbegin<std::string>();
+        auto rse = vec.rend<std::string>();
+        EXPECT_EQ(*rsb, "world");
+        EXPECT_EQ(*(rsb + 1), "hello");
+    }
+
+    // Test index-based iterators
+    {
+        // index 0 (int)
+        auto ib0 = vec.begin<0>();
+        auto ie0 = vec.end<0>();
+        EXPECT_EQ(ib0, vec.data<0>());
+        EXPECT_EQ(ie0 - ib0, 2);
+
+        auto cib0 = vec.cbegin<0>();
+        auto cie0 = vec.cend<0>();
+        EXPECT_EQ(cib0, vec.data<0>());
+
+        auto rib0 = vec.rbegin<0>();
+        auto rie0 = vec.rend<0>();
+        EXPECT_EQ(*rib0, 20);
+    }
+
+    {
+        // index 1 (double)
+        auto db1 = vec.begin<1>();
+        auto de1 = vec.end<1>();
+        EXPECT_EQ(db1, vec.data<1>());
+        EXPECT_EQ(de1 - db1, 1);
+
+        auto rdb1 = vec.rbegin<1>();
+        EXPECT_DOUBLE_EQ(*rdb1, 3.5);
+    }
+
+    {
+        // index 2 (string)
+        auto sb2 = vec.begin<2>();
+        auto se2 = vec.end<2>();
+        EXPECT_EQ(sb2, vec.data<2>());
+        EXPECT_EQ(se2 - sb2, 2);
+
+        auto rsb2 = vec.rbegin<2>();
+        EXPECT_EQ(*rsb2, "world");
+    }
+}
