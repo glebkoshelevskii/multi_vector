@@ -334,4 +334,3 @@ TEST(MultiVector, ProperDestructionOnMove) {
     EXPECT_EQ(Tracked::ctor_count, 4);
     EXPECT_EQ(Tracked::dtor_count, 4);
 }
-
